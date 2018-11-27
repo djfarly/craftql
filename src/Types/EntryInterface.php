@@ -4,6 +4,7 @@ namespace markhuot\CraftQL\Types;
 
 use markhuot\CraftQL\Builders\InterfaceBuilder;
 use markhuot\CraftQL\FieldBehaviors\EntryQueryArguments;
+use markhuot\CraftQL\FieldBehaviors\UrlArguments;
 use markhuot\CraftQL\Helpers\StringHelper;
 use Craft;
 
@@ -25,24 +26,8 @@ class EntryInterface extends InterfaceBuilder {
         $this->addBooleanField('enabled')->nonNull();
         $this->addStringField('status')->nonNull();
         $this->addStringField('uri');
-        $this->addStringField('url');
-
-        $this->addStringField('fullUri')
-            ->resolve(function($root, $args) {
-                $site = Craft::$app->sites->getSiteById($root->siteId);
-                return $root->uri ? rtrim(
-                    str_replace(
-                        '__home__',
-                        '',
-                        str_replace(
-                            '@web',
-                            '',
-                            $site->baseUrl . $root->uri
-                        )
-                    ),
-                    '/'
-                ) : null;
-            });
+        $this->addStringField('url')
+            ->use(new UrlArguments);
         
         $this->addField('site')->type(Site::class);
 
@@ -62,9 +47,6 @@ class EntryInterface extends InterfaceBuilder {
                         'isSelf' => $root->siteId == $entry->siteId
                     ];
                 }, $root['supportedSites']);
-                // return array_filter($allEntries, function($entry) {
-                //     return $entry->enabled;
-                // });
             });
 
         $this->addStringField('language')

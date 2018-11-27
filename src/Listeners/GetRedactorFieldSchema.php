@@ -2,6 +2,8 @@
 
 namespace markhuot\CraftQL\Listeners;
 
+use markhuot\CraftQL\FieldBehaviors\ContentFieldArguments;
+
 class GetRedactorFieldSchema
 {
     static $outputSchema;
@@ -38,6 +40,7 @@ class GetRedactorFieldSchema
             ->arguments(function ($field) {
                 $field->addIntArgument('page');
             })
+            ->use(new ContentFieldArguments)
             ->resolve(function ($root, $args) {
                 if (!empty($args['page'])) {
                     return (string)$root->getPage($args['page']);
